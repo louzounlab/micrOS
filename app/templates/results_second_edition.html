@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+<script>
+    function submitForm() {
+        document.getElementById("threshold-form").submit()
+    }
+</script>
+
+{% endblock %}
+
+{% block content %}
+<style>
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px; /* Adjust the gap between images */
+    }
+    .image-grid img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+</style>
+<script>
+    hideLoader();
+</script>
+<br>
+<div class="container">
+    <h1>micrOS</h1>
+</div>
+<br>
+<br>
+{% if run_iMic %}
+    <div class="container text-center">
+        <h1>iMic results</h1>
+    </div>
+    <div class="row content-justify-evenly">
+        <div class="col-md-4">
+            <label class="form-label badge text-bg-dark" style="font-size: 18px;">Train set:</label>
+            <a href='{{ render_dict["imic_train"] }}' class="badge rounded-pill bg-light"
+               style="font-size: 18px; color: black;">train.csv</a>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label badge text-bg-dark" style="font-size: 18px;">Train set:</label>
+            <a href='{{ render_dict["imic_test"] }}' class="badge rounded-pill bg-light"
+               style="font-size: 18px; color: black;">test.csv</a>
+        </div>
+    </div>
+    <div class="row content-justify-evenly">
+        <div class="col-md-4">
+            <label class="form-label badge text-bg-dark" style="font-size: 18px;">AUC score on train set:</label>
+            <a class="badge rounded-pill bg-light" style="font-size: 18px; color: black;">{{ render_dict["roc_auc_train"] }}</a>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label badge text-bg-dark" style="font-size: 18px;">ROC AUC score on test set:</label>
+            <a class="badge rounded-pill bg-light" style="font-size: 18px; color: black;">{{ render_dict["roc_auc_test"] }}</a>
+        </div>
+    </div>
+{% endif %}
+{% if run_miMic %}
+    <div class="container text-center">
+        <h1>miMic results</h1>
+    </div>
+    <div class="container text-center">
+        <div class="row">
+            <label class="form-label badge text-bg-dark" style="font-size: 18px;">corrs DataFrame:</label>
+            <a href='{{ render_dict["mimic_corrs"] }}' class="badge rounded-pill bg-light"
+               style="font-size: 18px; color: black;">df_corrs.csv</a>
+        </div>
+        <div class="row">
+            <div class="col-md-6 image-grid">
+                <a href='{{ render_dict["mimic_paths"][0] }}' download>
+                    <img src='{{ render_dict["mimic_paths"][0] }}'></a>
+            </div>
+            <div class="col-md-6 image-grid">
+                <a href='{{ render_dict["mimic_paths"][1] }}' download>
+                    <img src='{{ render_dict["mimic_paths"][1] }}'></a>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="row">
+            <div class="col-md-6 image-grid">
+                <a href='{{ render_dict["mimic_paths"][2] }}' download>
+                    <img src='{{ render_dict["mimic_paths"][2] }}'></a>
+            </div>
+            <div class="col-md-6 image-grid">
+                <a href='{{ render_dict["mimic_paths"][3] }}' download>
+                    <img src='{{ render_dict["mimic_paths"][3] }}'></a>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="row">
+            <div class="col-md-6 image-grid">
+                <a href='{{ render_dict["mimic_paths"][4] }}' download>
+                    <img src='{{ render_dict["mimic_paths"][4] }}'></a>
+            </div>
+            <div class="col-md-6 image-grid">
+                <a href='{{ render_dict["mimic_paths"][5] }}' download>
+                    <img src='{{ render_dict["mimic_paths"][5] }}'></a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% if run_samba %}
+    <div class="container text-center">
+        <h1>SAMBA results</h1>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 image-grid">
+                <img src='{{ render_dict["samba_png"] }}'>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label badge text-bg-dark" style="font-size: 18px;">Dist Matrix:</label>
+                <a href='{{ render_dict["samba_csv"] }}' class="badge rounded-pill bg-light"
+                   style="font-size: 18px; color: black;">dist_matrix.csv</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% if run_LOCATE %}
+    <div class="container text-center">
+        <h1>LOCATE results</h1>
+    </div>
+    <div class="row justify-content-evenly">
+        <div class="col-md-4">
+            <label class="form-label badge text-bg-dark" style="font-size: 18px;">results dataframe:</label>
+            <a href='{{ render_dict["locate_path"] }}' class="badge rounded-pill bg-light"
+               style="font-size: 18px; color: black;">results.csv</a>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label badge text-bg-dark" style="font-size: 18px;">n_pred:</label>
+            <a class="badge rounded-pill bg-light" style="font-size: 18px; color: black;">{{ render_dict["n_pred"] }}</a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
