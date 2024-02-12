@@ -15,6 +15,8 @@ app.config['UPLOAD_FOLDER'] = os.path.abspath("upload_folder")
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=1)
 app.config["SECRET_KEY"] = random_hex
 
+os.makedirs("static/temp_files", exist_ok=True)
+
 
 def delete_old_files_and_folders():
     directory_path = "static/temp_files"
