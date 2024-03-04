@@ -74,7 +74,7 @@
         <input type="text" name="z-score-log-val" id="z-score-log-val" value="Row" hidden>
         <input type="text" name="z-score-rel-val" id="z-score-rel-val" value="No" hidden>
         <input type="text" name="eval-val" id="eval-val" value="man" hidden>
-        <input type="text" name="sis-val" id="sis-val" value="bonferoni" hidden>
+        <input type="text" name="sis-val" id="sis-val" value="fdr_bh" hidden>
         <input type="text" name="correct_first-val" id="correct_first-val" value="True" hidden>
         <input type="text" name="starting_taxonomy-val" id="starting_taxonomy-val" value="7" hidden>
         <input type="text" name="activation-val" id="activation-val" value="elu" hidden>
@@ -198,7 +198,7 @@
             </div>
             <div class="col">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="LOCATE" name="LOCATE" value="LOCATE" ONCHANGE="present_LOCATE();">
+                    <input class="form-check-input" type="checkbox" id="LOCATE" name="LOCATE" value="LOCATE" ONCHANGE="present_LOCATE();" disabled>
                     <label class="form-check-label" for="LOCATE">
                         LOCATE
                     </label>
@@ -317,14 +317,15 @@
                 <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
                     <label for="sis" class="form-label badge text-bg-dark">sis:</label>
                     <select id="sis" class="form-select" onchange="changeSelect('sis', 'sis-val');">
-                        <option value="bonferroni" selected>bonferroni</option>
+                        <option value="fdr_bh" selected>fdr_bh</option>
+                        <option value="bonferroni">bonferroni</option>
                         <option value="no">no</option>
                     </select>
                 </div>
             </div>
             <br>
             <br>
-            <div class="row justify-content-evenly">
+            <div class="row">
                 <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
                     <label for="correct_first" class="form-label badge text-bg-dark">Correct First:</label>
                     <select id="correct_first" class="form-select" onchange="changeSelect('correct_first', 'correct_first-val');">
@@ -333,17 +334,12 @@
                     </select>
                 </div>
                 <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="starting_taxonomy" class="form-label badge text-bg-dark">Starting Taxonomy:</label>
-                    <select id="starting_taxonomy" class="form-select" onchange="changeSelect('starting_taxonomy', 'starting_taxonomy-val');">
-                        <option value="None" selected>None</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                    </select>
+                    <label for="pvalue" class="form-label badge text-bg-dark">p value:</label>
+                    <input type="number" name="pvalue" id="pvalue" class="form-control" value="0.05">
+                </div>
+                <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                    <label for="threshold_stat" class="form-label badge text-bg-dark">Choose a threshold for the statistics<br>for the edges of the interaction network</label>
+                    <input type="number" name="threshold_stat" id="threshold_stat" class="form-control" value="0.5">
                 </div>
             </div>
         </div>
