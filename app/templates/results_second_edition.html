@@ -42,30 +42,33 @@
         <br>
         <div class="row justify-content-evenly">
             <div class="col-md-4 center">
-                <label class="form-label badge text-bg-dark center" style="font-size: 18px;">Training set:</label>
+                <label class="form-label badge text-bg-dark center" style="font-size: 18px; align-content: center;">
+                    Training set:</label>
                 <br>
                 <a href='{{ render_dict["imic_train"] }}' class="badge rounded-pill bg-light center"
-                   style="font-size: 18px; color: black;">train.csv</a>
+                   style="font-size: 18px; color: black; align-content: center;">train.csv</a>
             </div>
             <div class="col-md-4 center">
-                <label class="form-label badge text-bg-dark center" style="font-size: 18px;">Training set:</label>
+                <label class="form-label badge text-bg-dark center" style="font-size: 18px; align-content: center;">Training set:</label>
                 <br>
                 <a href='{{ render_dict["imic_test"] }}' class="badge rounded-pill bg-light center"
-                   style="font-size: 18px; color: black;">test.csv</a>
+                   style="font-size: 18px; color: black; align-content: center;">test.csv</a>
             </div>
         </div>
         <br>
         <div class="row justify-content-evenly">
             <div class="col-md-4">
-                <label class="form-label badge text-bg-dark" style="font-size: 18px;">AUC score on train set:</label>
+                <label class="form-label badge text-bg-dark" style="font-size: 18px; align-content: center;">
+                    AUC score on train set:</label>
                 <br>
                 <a class="badge rounded-pill bg-light"
-                   style="font-size: 18px; color: black;">{{ render_dict["roc_auc_train"] }}</a>
+                   style="font-size: 18px; color: black; align-content: center;">{{ render_dict["roc_auc_train"] }}</a>
             </div>
             <div class="col-md-4">
-                <label class="form-label badge text-bg-dark" style="font-size: 18px;">ROC AUC score on test set:</label>
+                <label class="form-label badge text-bg-dark" style="font-size: 18px; align-content: center;">ROC AUC score on test set:</label>
                 <br>
-                <a class="badge rounded-pill bg-light" style="font-size: 18px; color: black;">{{ render_dict["roc_auc_test"] }}</a>
+                <a class="badge rounded-pill bg-light" style="font-size: 18px; color: black; align-content: center;">
+                    {{ render_dict["roc_auc_test"] }}</a>
             </div>
         </div>
         <br>
@@ -90,11 +93,11 @@
             <br>
             <div class="row justify-content-evenly">
                 <div class="col-md-6 image-grid center">
-                    <a href='{{ render_dict["mimic_paths"][0] }}' download>
+                    <a href='{{ render_dict["mimic_paths"][0] }}' download style="align-content: center;">
                         <img src='{{ render_dict["mimic_paths"][0] }}'></a>
                 </div>
                 <div class="col-md-6 image-grid center">
-                    <a href='{{ render_dict["mimic_paths"][1] }}' download>
+                    <a href='{{ render_dict["mimic_paths"][1] }}' download style="align-content: center;">
                         <img src='{{ render_dict["mimic_paths"][1] }}'></a>
                 </div>
             </div>
@@ -102,11 +105,11 @@
             <br>
             <div class="row justify-content-evenly">
                 <div class="col-md-6 image-grid center">
-                    <a href='{{ render_dict["mimic_paths"][2] }}' download>
+                    <a href='{{ render_dict["mimic_paths"][2] }}' download style="align-content: center;">
                         <img src='{{ render_dict["mimic_paths"][2] }}'></a>
                 </div>
                 <div class="col-md-6 image-grid center">
-                    <a href='{{ render_dict["mimic_paths"][3] }}' download>
+                    <a href='{{ render_dict["mimic_paths"][3] }}' download style="align-content: center;">
                         <img src='{{ render_dict["mimic_paths"][3] }}'></a>
                 </div>
             </div>
@@ -114,11 +117,11 @@
             <br>
             <div class="row justify-content-evenly">
                 <div class="col-md-6 image-grid center">
-                    <a href='{{ render_dict["mimic_paths"][4] }}' download>
+                    <a href='{{ render_dict["mimic_paths"][4] }}' download style="align-content: center;">
                         <img src='{{ render_dict["mimic_paths"][4] }}'></a>
                 </div>
                 <div class="col-md-6 image-grid center">
-                    <a href='{{ render_dict["mimic_paths"][5] }}' download>
+                    <a href='{{ render_dict["mimic_paths"][5] }}' download style="align-content: center;">
                         <img src='{{ render_dict["mimic_paths"][5] }}'></a>
                 </div>
             </div>
@@ -141,7 +144,8 @@
                        style="font-size: 18px; color: black;">dist_matrix.csv</a>
                 </div>
                 <div class="col-md-4 image-grid center">
-                    <img src='{{ render_dict["samba_png"] }}'>
+                    <a href='{{ render_dict["samba_png"] }}' download>
+                        <img src='{{ render_dict["samba_png"] }}'></a>
                 </div>
             </div>
         </div>
