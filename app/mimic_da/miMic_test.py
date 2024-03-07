@@ -11,7 +11,7 @@ import matplotlib as mpl
 import matplotlib
 import matplotlib.cm as cm
 
-matplotlib.use('Qt5Agg')
+# matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 from scipy import stats
 from scipy.stats import mannwhitneyu, kruskal
