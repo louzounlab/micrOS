@@ -222,11 +222,6 @@ def example():
     return render_template("example.html", active="Example")
 
 
-@app.route('/Help', methods=['GET'])
-def help():
-    return render_template("help.html", active="Help")
-
-
 @app.route('/About', methods=['GET'])
 def about():
     return render_template("about.html", active="About")

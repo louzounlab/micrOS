@@ -11,15 +11,261 @@
 {% endblock %}
 
 {% block content %}
+    <br>
+    <br>
 <div class="page-top">
     <h1>Example</h1>
 </div>
 <br>
 <br>
 <div class="container">
-    We are deeply sorry but there's no concrete example of usage for us to give at the moment.
+<h2>Preprocess Data MIPMLP (Mendatory)</h2>
+<br>
+Preproceesing the raw ASVs by the following steps:
+<br>
+    &emsp;(1) merging similar features based on the taxonomy
     <br>
-    We do our best efforts to create one and upload as soon as possible.
+    &emsp;(2) scaling the distribution
+    <br>
+    &emsp;(3) standardization to z-scores (optional)
+    <br>
+    &emsp;(4) and dimension reduction (optional)
+    <br>
+<br>
+<h3>Input</h3>
+- The input file for the preprocessing should contain detailed unnormalized OTU/Feature values as a biom table, the appropriate taxonomy as a tsv file.
+<br>
+    <div class="text-center">
+    <b style="font-size: 23px;">OR</b>
+    </div>
+
+- A merged otu and taxonomy csv, such that the first column is named "ID", each row represents a sample and each column represents an ASV. The last row contains the taxonomy information, named "taxonomy".
+<br>
+<br>
+<b>Here is an example of how the input OTU file should look like: <a href="../static/otu_example.csv" download>example_file.csv</a></b>.
+    <br>
+    <br>
+    <h5>Optional</h5>
+    &emsp;- It is possible to load a <b>tag file</b>, with the class of each sample.
+    <br>
+&emsp;- The <b>tag file</b> is not used for the preprocessing, but is used to provide some statistics on the relation between the features and the class.
+    <br>
+    &emsp;- A <b>tag file</b> is mendatory for <b>iMic</b>, <b>miMic</b>, and for the visualization of <b>SAMBA</b>.
+    <br>
+    &emsp;- <b>Note: One can also run the preprocessing without a tag file.</b>
+<br><br>
+    <b>Here is an example of how the input OTU file should look like: <a href="../static/tag_example.csv" download>example_file.csv</a></b>.
+
+    <br><br>
+    <h3>Parameters</h3>
+Select the parameters for the preprocessing.
+<br>
+    <br>
+    - <b>taxonomy level</b> - Taxonomy sensitive dimension reduction by grouping the taxa at a given taxonomy level. All features with a given representation at a given taxonomy level will be grouped and merged using three different methods: Average, Sum or Sub-PCA (using PCA then followed by normalization).
+<br>
+    <b>Select one of: {"Order", "Family", "Genus", "Species"}. Default is "Species".</b>
+<br><br>
+    - <b>Normalization</b> - After the grouping process, you can apply two different normalization methods:
+    <br>
+    -  <b>Log (10 base) scale</b>
+    If you chose the <b>log normalization</b>, you now have four standardization:
+    &emsp;&emsp;&emsp;a) No standardization<br>
+    &emsp;&emsp;&emsp;b) Z-score each sample<br>
+    &emsp;&emsp;&emsp;c) Z-score each bacteria<br>
+    &emsp;&emsp;&emsp;d) Z-score each sample, and Z-score each bacteria (in this order)<br>
+
+    -  <b>Relative scale</b> ("Relative")
+    <br>
+    When performing <b>relative normalization</b>, we either do not standardize the results or preform only a standardization on the taxa.
+<br>
+    <b>Select one of: {"Log", "Relative"}. Default is "Log".</b>
+<br>
+<br>
+
+
+- <b>Dimension Reduction</b> - After the grouping, normalization and standardization you can choose from two dimension reduction method: <b>"PCA"</b> or <b>"ICA"</b>.
+<br>
+    <b>Select one of: {"None","PCA","ICA"}. Default is "None".</b>
+    <br>
+    - <b>Note if you chose to apply a Dimension reduction method, you will also have to decide the number of dimensions you want to leave.</b>
+<br><br>
+    - <b>Taxonomy Group</b> - The method to merge different ASVs of the same taxonomy.
+<br>
+    <b>Select one of: {"sub PCA", "mean", "sum"}. Default is "sub PCA".</b>
+    <br><br>
+    - <b>sub PCA</b> - A taxonomic level (e.g., species) is set. All the ASVs that are consistent with this taxonomy are grouped. A PCA (Principal component analysis) is performed on this group. The components that explain more than half of the variance are added to the new input table.
+    <br>
+    - <b>mean</b> - A level of taxonomy (e.g., species) is set. All the ASVS consistent with this taxonomy are grouped by averaging them.
+    <br>
+    - <b>sum</b> - A level of taxonomy (e.g., species) is set. All the ASVS consistent with this taxonomy are grouped by summing them.
+    <br><br>
+    - <b>Epsilon</b> - The pseudo index is added to the data to prevent zeros when <b>"log normalization"</b> is applied.
+    <br>
+    <b>Select a number between 0 to 1. Default is 0.1.</b>
+<br><br>
+    - <b>Number of components</b> - If dimension reduction is not "None", select a number for reduction.
+    <br>
+    <b>Select a number. Default is 0.</b>
+<br>
+    <br>
+    - <b>Taxonomy level for frequency plot</b> - For visualizations only.
+    <br>
+<b>Select one of: {"Class", "Phylum", "Order"}. Default is "Class".</b>
+<br><br>
+    - <b>Z scoring following log normalization</b> - How to apply z-scoring after the log normalization.
+    <br>
+    <b>Select one of: {"None", "Row","Col","Both"}. Default is "None".</b>
+<br><br>
+    - <b>Z scoring following relative frequency</b> - How to apply z-scoring after the log normalization.
+    <br><b>Select one of: {"No", "Row","Col","Both"}. Default is "No".</b>
+<br>
+    <br>
+    <h3>Output</h3>
+    The output is the processed file.
+    <br>
+    <br>
+    <br>
+    <h2>iMic (Optional)</h2>
+    <br>
+    <b>Tick the box next to iMic to select.</b>
+    <br>
+    iMic is a  method to combine information from different taxa and improves data representation for machine learning using microbial taxonomy.
+iMic translates the microbiome to images by using a cladogram of means, and convolutional neural networks are then applied to the image.
+    <br>
+    <br>
+    <h4>Input</h4>
+    The same inputs as for the data preprocessing.
+<br>
+    <br>
+    <h4>Parameters</h4>
+    <br>
+    Select the parameters for iMic running:
+    <br>
+    &emsp;- <b>l1 loss</b> = the coefficient of the L1 loss
+    <br>
+    &emsp;- <b>weight decay</b> = L2 regularization
+    <br>&emsp;- <b>lr</b> = learning rate
+    <br>&emsp;- <b>batch size</b> = as it sounds
+    <br>&emsp;- <b>activation</b> = activation function one of:  "elu", | "relu" | "tanh"
+    <br>&emsp;- <b>dropout</b> = as it sounds (is common to all the layers)
+    <br>&emsp;- <b>kernel_size_a</b> = the size of the kernel of the first CNN layer (rows)
+    <br>&emsp;- <b>kernel_size_b</b> = the size of the kernel of the first CNN layer (columns)
+    <br>&emsp;- <b>stride</b> = the stride's size of the first CNN
+    <br>&emsp;- <b>padding</b> = the padding size of the first CNN layer
+    <br>&emsp;- <b>padding_2</b> = the padding size of the second CNN layer
+    <br>&emsp;- <b>kernel_size_a_2</b> = the size of the kernel of the second CNN layer (rows)
+    <br>&emsp;- <b>kernel_size_b_2</b> = the size of the kernel of the second CNN layer (columns)
+    <br>&emsp;- <b>stride_2</b> = the stride size of the second CNN
+    <br>&emsp;- <b>channels</b> = number of channels of the first CNN layer
+    <br>&emsp;- <b>channels_2</b> = number of channels of the second CNN layer
+    <br>&emsp;- <b>linear_dim_divider_1</b> = the number to divide the original input size to get the number of neurons in the first FCN layer
+    <br>&emsp;- <b>linear_dim_divider_2</b> = the number to divide the original input size to get the number of neurons in the second FCN layer
+    <br>&emsp;- <b>input dim</b> = the dimention of the input image (rows, columns)
+    <br><b>Note that the input_dim is also updated automatically during the run.</b>
+<br>
+    <br>
+    <h4>Output</h4>
+    The train and test sets as csv files along with the model's AUC score for them.
+    <br><br><br>
+    <h2>miMic (Optional)</h2>
+    <br><b>Tick the box next to miMic to select.</b><br>
+miMic is a straightforward yet remarkably versatile and scalable approach for differential abundance analysis.
+<br>
+miMic consists of three main steps:
+<br>
+&emsp;- Data preprocessing and translation to a cladogram of means.
+    &emsp;-  An apriori nested ANOVA (or nested GLM for continuous labels) to detect overall microbiome-label relations.
+&emsp;-  A post hoc test along the cladogram trajectories.
+<br>
+    <br>
+    <h4>Input</h4>
+The same inputs as for the data preprocessing.
+    <br>
+    <br>
+
+    <h4>Parameters</h4>
+    <br>
+Select the parameters for miMic running:
+    &emsp;- <b>Eval Mode</b>: evaluation method, ["man", "corr", "cat"]. Default is "man".
+      &emsp;&emsp;&emsp;- "man" for binary labels.
+      &emsp;&emsp;&emsp;- "corr" for continuous labels.
+      &emsp;&emsp;&emsp;- "cat" for categorical labels.
+    &emsp;- <b>sis</b>: apply sister correction,["fdr_bh", "bonferroni", "no"]. Default is "fdr_bh".
+    &emsp;- <b>Correct First</b>: apply FDR correction to the starting taxonomy level according to `sis` parameter,[True, False] Default is True.
+    &emsp;- <b>p-value</b>: the threshold for significant values. Default is 0.05.
+&emsp;- <b>THRESHOLD_edge</b>: the threshold for having an edge in "interaction" plot. Default is 0.5.
+<br><br>
+    <h4>Output</h4>
+    <br>
+- <b>corrs_df</b>: a dataframe containing the results of the miMic test (including Utest results).
+    <br><br>
+- <b>tax_vs_rp_sp_anova_p</b>: plot RP vs SP over the different taxonomy levels and color the background of the plot till the selected taxonomy, based on miMic test.
+  <br><a href="https://github.com/oshritshtossel/miMic/raw/master/plots/tax_vs_rp_sp_anova_p.png">![tax_vs_rp_sp_anova_p]</a>
+<br><br>
+ - <b>rsp_vs_beta</b>: calculate RSP score for different betas and create the appropriate plot.
+    <br><a href="https://github.com/oshritshtossel/miMic/raw/master/plots/rsp_vs_beta.png">![rsp_vs_beta]</a>
+<br><br>
+  - <b>hist</b>: a histogram of the ASVs in each taxonomy level.
+    <br><a href="https://github.com/oshritshtossel/miMic/raw/master/plots/hist.png">![hist]</a>
+<br>
+    <br>
+  - <b>corrs_within_family</b>: a plot of the correlation between the significant ASVs within the family level, the background color of the node will be colored based on the family color.
+    <br><a href="https://github.com/oshritshtossel/miMic/raw/master/plots/corrs_within_family.png">![corrs_within_family]</a>
+<br>
+    <br>
+ - <b>interaction</b>: a plot of the interaction between the significant ASVs.
+    <br><a href="https://github.com/oshritshtossel/miMic/raw/master/plots/interaction.png">![interaction]</a>
+<br>
+    <br>
+   - <b>correlations_tree</b>: create correlation cladogram, such that tha size of each node is according to the -log(p-value), the color of
+       each node represents the sign of the post hoc test, the shape of the node (circle, square,sphere) is based on
+       miMic, Utest, or both results accordingly, the background color of the node will be colored based on the family color.
+    <br><a href="https://github.com/oshritshtossel/miMic/raw/master/plots/correlations_tree.svg">![correlations_tree]</a>
+<br>
+    <br>
+    <br>
+    <h2>SAMBA (Optional)</h2>
+    <br>
+    <b>Tick the box next to iMic to select.</b>
+    <br>
+SAMBA is a novel microbial metric. SAMBA utilizes the iMic method to transform microbial data into images, incorporating phylogenetic structure and abundance similarity. This image-based representation enhances data visualization and analysis. Moreover, SAMBA employs a fast Fourier transform (FFT) with adjustable thresholding to smooth the images, reducing noise and accentuating meaningful information. Various distance metrics, such as SAM and MSE, can be applied to the processed images.
+<br>
+    <br>
+    <h4>Input</h4>
+The same inputs as for the data preprocessing.
+<br>
+    <br>
+    <h4>Parameters</h4>
+Select the parameters for SAMBA running:
+    <br>
+    &emsp;- <b>cutoff</b> - A number between 0 to 1. Default is 0.8. It is the cutoff for the FFT filtering.
+    <br>
+    &emsp;- <b>metric</b> - The metric to calculate the distances between the created images.
+    <br>
+    <b>Select one of {"sam","mse","d1","d2","d3"}</b>.
+<br>
+    <br>
+    <h4>Output</h4>
+- A csv with SAMBA's distances matrix.
+    <br>
+    - If a <b>tag</b> file is provided, a 2D-UMAP visualization colored according to the tag file.
+    <br>
+    <br>
+    <br>
+    <br>
+    <h1>Cite US</h1>
+
+- Shtossel, Oshrit, et al. "Ordering taxa in image convolution networks improves microbiome-based machine learning accuracy." Gut Microbes 15.1 (2023): 2224474.
+<br><br>
+- Shtossel, Oshrit, and Yoram Louzoun. "miMic-a novel multi-layer statistical test for microbiome disease." (2023).
+<br><br>
+- Jasner, Yoel, et al. "Microbiome preprocessing machine learning pipeline." Frontiers in Immunology 12 (2021): 677870.
+    <br>
+<br>
+<br>
+<br>
+<br>
+<br>
 </div>
 
 {% endblock %}
