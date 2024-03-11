@@ -804,7 +804,7 @@ def calculate_all_imgs_tag_corr(samba_output, folder, tag, start_i, eval="corr",
             directory = path
 
             # Histograms of all different taxonomy levels plot (3)
-            mpl.rc('font', family='Times New Roman')
+            # mpl.rc('font', family='Times New Roman')
             SIZE = 15
             column_labels = ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species']
 
@@ -867,7 +867,7 @@ def calculate_all_imgs_tag_corr(samba_output, folder, tag, start_i, eval="corr",
                 imgs_s[len_name_dfcorr, cell_col] = df_corss.loc[df_corr_name, "scc"]
 
             # check family test
-            mpl.rc('font', family='Times New Roman')
+            # mpl.rc('font', family='Times New Roman')
 
             all_leaves_in_df_corss = df_corss.index
             # taking all the families, if the length of the name is 5 = family
@@ -1070,7 +1070,7 @@ def plot_rp_sp_anova_p(df, mixed, save):
     :return: None. Display the RP vs SP .
     """
     SIZE = 15
-    mpl.rc('font', family='Times New Roman')
+    # mpl.rc('font', family='Times New Roman')
     taxonomy_level = ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species', mixed]
     tax_level_chosen = mixed.split("&")[0].strip()
     tax_level_chosen_index = taxonomy_level.index(tax_level_chosen)
@@ -1121,7 +1121,7 @@ def calculate_rsp(df, save):
 
     # RSP vs beta plot (2)
     SIZE = 15
-    mpl.rc('font', family='Times New Roman')
+    # mpl.rc('font', family='Times New Roman')
     to_plot.plot(legend=False, figsize=(4, 4), color="grey")
     plt.ylim([0.5, 1.1])  # to_plot.min().values[0]-0.05
     plt.xlabel(r'$\beta$', fontsize=SIZE)

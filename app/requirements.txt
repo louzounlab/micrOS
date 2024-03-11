@@ -36,9 +36,6 @@ pillow==10.2.0
 plotly==5.19.0
 pynndescent==0.5.11
 pyparsing==3.1.1
-PyQt5==5.15.10
-PyQt5-Qt5==5.15.2
-PyQt5-sip==12.13.0
 python-dateutil==2.9.0.post0
 python-igraph==0.11.4
 pytorch-lightning==2.1.0
