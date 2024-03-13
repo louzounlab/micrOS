@@ -1,3 +1,7 @@
+import os
+
+os.environ['QT_QPA_PLATFORM']='offscreen'
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -6,7 +10,6 @@ import warnings
 import MIPMLP
 import samba
 import pandas as pd
-import os
 import statsmodels.api as sm
 from scipy.stats import spearmanr
 from statsmodels.formula.api import ols
