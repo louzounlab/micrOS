@@ -1,6 +1,6 @@
 import os
 
-os.environ['QT_QPA_PLATFORM']='offscreen'
+os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
 import matplotlib
 
@@ -306,7 +306,7 @@ def creare_tree_view(names, mean_0, mean_1, directory, threshold_p=0.05, family_
     T0 = T.copy("deepcopy")
     bound_0 = 0
     for t in T0.get_descendants():
-        nstyle = NodeStyle()
+        nstyle = ete3.NodeStyle()
         nstyle["size"] = 30
         nstyle["fgcolor"] = "gray"
 
