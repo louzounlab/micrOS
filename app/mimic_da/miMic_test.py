@@ -20,7 +20,7 @@ from scipy.stats import mannwhitneyu, kruskal
 import networkx as nx
 import ete3
 from .tax_tree_create import create_tax_tree
-from ete3 import NodeStyle, TextFace, add_face_to_node, TreeStyle
+from ete3 import TextFace, add_face_to_node, TreeStyle
 from copy import deepcopy
 import statsmodels.stats.multitest as smt
 import numpy as np
