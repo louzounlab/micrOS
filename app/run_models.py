@@ -58,6 +58,9 @@ def total(current_time, df, tag, taxonomy_level, taxonomy_group, epsilon, normal
     if run_samba:
         array_of_imgs, bact_names, ordered_df = samba.micro2matrix(processed, folder, save=False)
 
+        print(array_of_imgs.shape)
+        print(bact_names)
+
         # Calculate the distance matrix according to SAMBA
         dm = samba.build_SAMBA_distance_matrix(folder, imgs=array_of_imgs, ordered_df=ordered_df)
 
