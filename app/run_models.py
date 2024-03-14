@@ -62,7 +62,8 @@ def total(current_time, df, tag, taxonomy_level, taxonomy_group, epsilon, normal
         print(bact_names)
 
         # Calculate the distance matrix according to SAMBA
-        dm = samba.build_SAMBA_distance_matrix(folder, imgs=array_of_imgs, ordered_df=ordered_df)
+        dm = samba.build_SAMBA_distance_matrix(folder, imgs=array_of_imgs, ordered_df=ordered_df,
+                                               cutoff=cutoff, metric=metric, tag=tag)
 
         # dm = samba.build_SAMBA_distance_matrix(folder, metric, cutoff, tag)
         dm.to_csv(os.path.join(folder, 'samba', "dist_matrix.csv"))
