@@ -56,7 +56,12 @@ def total(current_time, df, tag, taxonomy_level, taxonomy_group, epsilon, normal
                         threshold_p=mimic_pvalue, THRESHOLD_edge=mimic_threshold_stat, path=path)
 
     if run_samba:
-        dm = samba.build_SAMBA_distance_matrix(folder, metric, cutoff, tag)
+        array_of_imgs, bact_names, ordered_df = samba.micro2matrix(processed, folder, save=False)
+
+        # Calculate the distance matrix according to SAMBA
+        dm = samba.build_SAMBA_distance_matrix(folder, imgs=array_of_imgs, ordered_df=ordered_df)
+
+        # dm = samba.build_SAMBA_distance_matrix(folder, metric, cutoff, tag)
         dm.to_csv(os.path.join(folder, 'samba', "dist_matrix.csv"))
 
         if tag is not None:
