@@ -4,7 +4,7 @@ os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
 import matplotlib
 
-matplotlib.use("Qt5Agg")
+matplotlib.use("Agg")
 
 import warnings
 import MIPMLP
