@@ -4,7 +4,7 @@ os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
 import matplotlib
 
-matplotlib.use("Agg")
+matplotlib.use("Qt5Agg")
 
 import warnings
 import MIPMLP
@@ -19,6 +19,7 @@ from scipy import stats
 from scipy.stats import mannwhitneyu, kruskal
 import networkx as nx
 import ete3
+from ete3 import NodeStyle, TreeStyle, TextFace, add_face_to_node
 from .tax_tree_create import create_tax_tree
 from copy import deepcopy
 import statsmodels.stats.multitest as smt
@@ -305,7 +306,7 @@ def creare_tree_view(names, mean_0, mean_1, directory, threshold_p=0.05, family_
     T0 = T.copy("deepcopy")
     bound_0 = 0
     for t in T0.get_descendants():
-        nstyle = ete3.NodeStyle()
+        nstyle = NodeStyle()
         nstyle["size"] = 30
         nstyle["fgcolor"] = "gray"
 
@@ -381,7 +382,7 @@ def creare_tree_view(names, mean_0, mean_1, directory, threshold_p=0.05, family_
                 for s in siss:
                     node.remove_sister(s)
 
-    ts = ete3.TreeStyle()
+    ts = TreeStyle()
     ts.show_leaf_name = False
     ts.min_leaf_separation = 0.5
     ts.mode = "c"
@@ -407,8 +408,8 @@ def creare_tree_view(names, mean_0, mean_1, directory, threshold_p=0.05, family_
             else:
                 name = node.name
 
-            F = ete3.TextFace(f"{name} {tax} ", fsize=100, ftype="Arial")  # {tax}
-            ete3.add_face_to_node(F, node, column=0, position="branch-right")
+            F = TextFace(f"{name} {tax} ", fsize=100, ftype="Arial")  # {tax}
+            add_face_to_node(F, node, column=0, position="branch-right")
 
     ts.layout_fn = my_layout
     T0.render(f"{directory}/correlations_tree.svg", tree_style=deepcopy(ts))
