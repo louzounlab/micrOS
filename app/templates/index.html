@@ -54,11 +54,52 @@
         }
     }
 
+    function showLoader() {
+        // Show the popup modal
+        document.getElementById('loading-modal').style.display = 'flex';
+    }
+
+    function hideLoader() {
+    document.getElementById('loading-modal').style.display = 'none';
+    }
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            hideLoader();
+        }
+    });
+
+    function loadDefaultOTU() {
+        const defaultFilePath = '/static/otu_example.csv';
+        const fileInput = document.getElementById('OTU-file');
+        fetch(defaultFilePath)
+            .then(response => response.blob())
+            .then(blob => {
+                const file = new File([blob], 'otu_example.csv', { type: 'text/csv' });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+            })
+            .catch(error => console.error('Error loading default OTU file:', error));
+    }
+    function loadDefaultTag() {
+        const defaultFilePath = '/static/tag_example.csv';
+        const fileInput = document.getElementById('TAG-file');
+        fetch(defaultFilePath)
+            .then(response => response.blob())
+            .then(blob => {
+                const file = new File([blob], 'tag_example.csv', { type: 'text/csv' });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+            })
+            .catch(error => console.error('Error loading default Tag file:', error));
+    }
 </script>
 
 {% endblock %}
 
 {% block content %}
+
 <div class="page-top">
     <h1>micrOS</h1>
 </div>
@@ -84,374 +125,428 @@
 
         <h2>Preprocess Data</h2>
         <div class="row justify-content-evenly">
-            <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-                <label for="OTU-file" class="form-label badge text-bg-dark">Select OTU table:</label>
-                <input type="file" name="OTU-file" id="OTU-file" class="form-control" accept=".csv">
-            </div>
-
-            <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-                <label for="TAG-file" class="form-label badge text-bg-dark">Select Tag file:</label>
-                <input type="file" name="TAG-file" id="TAG-file" class="form-control" accept=".csv">
-            </div>
-        </div>
-
-        <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-            <label for="tax-level" class="form-label badge text-bg-dark">Taxonomy Level:</label>
-            <select id="tax-level" class="form-select" onchange="changeSelect('tax-level', 'tax-level-val');">
-                <option value="Order">Order</option>
-                <option value="Family">Family</option>
-                <option value="Genus">Genus</option>
-                <option value="Specie" selected>Specie</option>
-            </select>
-        </div>
-
-        <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-            <label for="normalization" class="form-label badge text-bg-dark">Normalization:</label>
-            <select id="normalization" class="form-select" onchange="changeSelect('normalization', 'normalization-val');">
-                <option value="Log" selected>Log</option>
-                <option value="Relative">Relative</option>
-            </select>
-        </div>
-        <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-            <label for="reduction" class="form-label badge text-bg-dark">Dimension Reduction:</label>
-            <select id="reduction" class="form-select" onchange="changeSelect('reduction', 'normalization-val');">
-                <option value="PCA">PCA</option>
-                <option value="ICA">ICA</option>
-                <option value="None" selected>None</option>
-            </select>
-        </div>
-        <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-            <label for="tax-group" class="form-label badge text-bg-dark">Taxonomy Group:</label>
-            <select id="tax-group" class="form-select" onchange="changeSelect('tax-group', 'tax-group-val');">
-                <option value="Mean">Mean</option>
-                <option value="Sum">Sum</option>
-                <option value="sub PCA" selected>sub PCA</option>
-            </select>
-        </div>
-        <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-            <label for="epsilon" class="form-label badge text-bg-dark">Epsilon:</label>
-            <input type="number" name="epsilon" id="epsilon" value="0.1" class="form-control">
-        </div>
-        <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-            <label for="components" class="form-label badge text-bg-dark">Number of Components:</label>
-            <input type="number" name="components" id="components" value="0" class="form-control">
-        </div>
-        <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-            <label for="tax-level-freq" class="form-label badge text-bg-dark">Taxonomy Level For Frequency Plot:</label>
-            <select id="tax-level-freq" class="form-select" onchange="changeSelect('tax-level-freq', 'tax-level-freq-val');">
-                <option value="Class" selected>Class</option>
-                <option value="Phylum">Phylum</option>
-                <option value="Order">Order</option>
-            </select>
-        </div>
-        <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-            <label for="z-score-log" class="form-label badge text-bg-dark">Z Scoring following log normalization:</label>
-            <select id="z-score-log" class="form-select" onchange="changeSelect('z-score-log', 'z-score-log-val');">
-                <option value="Row">Row</option>
-                <option value="Column">Column</option>
-                <option value="Both">Both</option>
-                <option value="None" selected>None</option>
-            </select>
-            <br>
-            <label for="z-score-rel" class="form-label badge text-bg-dark">Z Scoring following relative frequency:</label>
-            <select id="z-score-rel" class="form-select" onchange="changeSelect('z-score-rel', 'z-score-rel-val');">
-                <option value="No" selected>No</option>
-                <option value="Yes">Yes</option>
-            </select>
-        </div>
-        <div>
-            <br>
-        </div>
-
-        <div class="row">
-            <div class="col">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="MIP-MLP" value="MIP-MLP" checked disabled>
-                    <label class="form-check-label" for="MIP-MLP">
-                        MIP-MLP
-                    </label>
-                </div>
-            </div>
-            <div class="col">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="iMic" name="iMic" value="iMic" onchange="present_iMic();">
-                    <label class="form-check-label" for="iMic">
-                        iMic
-                    </label>
-                </div>
-            </div>
-            <div class="col">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="miMic" name="miMic" value="miMic" onchange="present_miMic();">
-                    <label class="form-check-label" for="miMic">
-                        miMic
-                    </label>
-                </div>
-            </div>
-            <div class="col">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="samba" name="samba" value="samba" onchange="present_samba();" disabled>
-                    <label class="form-check-label" for="samba">
-                        SAMBA
-                    </label>
-                </div>
-            </div>
-{#            <div class="col">#}
-{#                <div class="form-check">#}
-{#                    <input class="form-check-input" type="checkbox" id="LOCATE" name="LOCATE" value="LOCATE" ONCHANGE="present_LOCATE();" disabled>#}
-{#                    <label class="form-check-label" for="LOCATE">#}
-{#                        LOCATE#}
-{#                    </label>#}
-{#                </div>#}
-{#            </div>#}
-        </div>
-        <div id="present_iMic" style="display: none;" class="container">
-            <br>
-            <h3>iMic HyperParameters</h3>
-            <br>
-            <div class="row">
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="l1_loss" class="form-label badge text-bg-dark">l1_loss:</label>
-                    <input type="number" name="l1_loss" id="l1_loss" value="0.1" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="weight_decay" class="form-label badge text-bg-dark">weight_decay:</label>
-                    <input type="number" name="weight_decay" id="weight_decay" value="0.01" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="lr" class="form-label badge text-bg-dark">lr:</label>
-                    <input type="number" name="lr" id="lr" value="0.001" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="batch_size" class="form-label badge text-bg-dark">batch_size:</label>
-                    <input type="number" name="batch_size" id="batch_size" value="128" class="form-control">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="activation" class="form-label badge text-bg-dark">activation:</label>
-                    <select id="activation" class="form-select" onchange="changeSelect('activation', 'activation-val');">
-                        <option value="elu" selected>elu</option>
-                        <option value="relu">relu</option>
-                        <option value="tanh">tanh</option>
-                    </select>
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="dropout" class="form-label badge text-bg-dark">dropout:</label>
-                    <input type="number" name="dropout" id="dropout" value="0.1" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="kernel_size_a" class="form-label badge text-bg-dark">kernel_size_a:</label>
-                    <input type="number" name="kernel_size_a" id="kernel_size_a" value="4" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="kernel_size_b" class="form-label badge text-bg-dark">kernel_size_b:</label>
-                    <input type="number" name="kernel_size_b" id="kernel_size_b" value="4" class="form-control">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="stride" class="form-label badge text-bg-dark">stride:</label>
-                    <input type="number" name="stride" id="stride" value="2" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="padding" class="form-label badge text-bg-dark">padding:</label>
-                    <input type="number" name="padding" id="padding" value="3" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="padding_2" class="form-label badge text-bg-dark">padding_2:</label>
-                    <input type="number" name="padding_2" id="padding_2" value="0" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="kernel_size_a_2" class="form-label badge text-bg-dark">kernel_size_a_2:</label>
-                    <input type="number" name="kernel_size_a_2" id="kernel_size_a_2" value="2" class="form-control">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="kernel_size_b_2" class="form-label badge text-bg-dark">kernel_size_b_2:</label>
-                    <input type="number" name="kernel_size_b_2" id="kernel_size_b_2" value="7" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="stride_2" class="form-label badge text-bg-dark">stride_2:</label>
-                    <input type="number" name="stride_2" id="stride_2" value="3" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="channels" class="form-label badge text-bg-dark">channels:</label>
-                    <input type="number" name="channels" id="channels" value="3" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="channels_2" class="form-label badge text-bg-dark">channels_2:</label>
-                    <input type="number" name="channels_2" id="channels_2" value="14" class="form-control">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="linear_dim_divider_1" class="form-label badge text-bg-dark">linear_dim_divider_1:</label>
-                    <input type="number" name="linear_dim_divider_1" id="linear_dim_divider_1" value="10" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="linear_dim_divider_2" class="form-label badge text-bg-dark">linear_dim_divider_2:</label>
-                    <input type="number" name="linear_dim_divider_2" id="linear_dim_divider_2" value="6" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="input_dim" class="form-label badge text-bg-dark">input_dim:</label>
-                    <input type="text" name="input_dim" id="input_dim" value="(8, 235)" class="form-control">
-                </div>
-            </div>
-        </div>
-
-        <div id="present_mimic" style="display: none;">
-            <br>
-            <h2>A priori Nested ANOVA & Post hoc Test</h2>
-            <br>
             <div class="row justify-content-evenly">
                 <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="eval" class="form-label badge text-bg-dark">Eval Mode:</label>
-                    <select id="eval" class="form-select" onchange="changeSelect('eval', 'eval-val');">
-                        <option value="man" selected>man</option>
-                        <option value="core">core</option>
-                        <option value="cat">cat</option>
-                    </select>
+                    <label for="OTU-file" class="form-label badge text-bg-dark">Select OTU table:</label>
+                    <input type="file" name="OTU-file" id="OTU-file" class="form-control" accept=".csv">
+                    <button type="button" class="btn btn-secondary mt-2" onclick="loadDefaultOTU()">Load Example
+                    </button>
                 </div>
-                <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="sis" class="form-label badge text-bg-dark">sis:</label>
-                    <select id="sis" class="form-select" onchange="changeSelect('sis', 'sis-val');">
-                        <option value="fdr_bh" selected>fdr_bh</option>
-                        <option value="bonferroni">bonferroni</option>
-                        <option value="no">no</option>
-                    </select>
-                </div>
-            </div>
-            <br>
-            <br>
-            <div class="row">
-                <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="correct_first" class="form-label badge text-bg-dark">Correct First:</label>
-                    <select id="correct_first" class="form-select" onchange="changeSelect('correct_first', 'correct_first-val');">
-                        <option value="True" selected>True</option>
-                        <option value="False">False</option>
-                    </select>
-                </div>
-                <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="pvalue" class="form-label badge text-bg-dark">p value:</label>
-                    <input type="number" name="pvalue" id="pvalue" class="form-control" value="0.05">
-                </div>
-                <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="threshold_stat" class="form-label badge text-bg-dark">Choose a threshold for the statistics<br>for the edges of the interaction network</label>
-                    <input type="number" name="threshold_stat" id="threshold_stat" class="form-control" value="0.5">
-                </div>
-            </div>
-        </div>
-        <div id="present_samba" style="display: none;" class="container">
-            <br>
-            <h3>SAMBA HyperParameters</h3>
-            <br>
-            <div class="row justify-content-evenly">
-                <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="cutoff" class="form-label badge text-bg-dark">cutoff:</label>
-                    <input type="number" name="cutoff" id="cutoff" class="form-control" value="0.8">
-                </div>
-                <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="metric" class="form-label badge text-bg-dark">metric:</label>
-                    <select id="metric" class="form-select" onchange="changeSelect('metric', 'metric-val');">
-                        <option value="sam" selected>sam</option>
-                        <option value="mge">mge</option>
-                        <option value="d1">d1</option>
-                        <option value="d2">d2</option>
-                        <option value="d3">d3</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div id="present_LOCATE" style="display: none;" class="container">
-            <br>
-            <h3>LOCATE HyperParameters</h3>
-            <br>
-            <div class="row">
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="metab" class="form-label badge text-bg-dark">metab:</label>
-                    <input type="file" name="metab" id="metab" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="weight_decay_rep" class="form-label badge text-bg-dark">weight_decay_rep:</label>
-                    <input type="number" name="weight_decay_rep" id="weight_decay_rep" value="0.02" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="weight_decay_dis" class="form-label badge text-bg-dark">weight_decay_dis:</label>
-                    <input type="number" name="weight_decay_dis" id="weight_decay_dis" value="0.2" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="lr_rep" class="form-label badge text-bg-dark">lr_rep:</label>
-                    <input type="number" name="lr_rep" id="lr_rep" value="0.001" class="form-control">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="lr_dis" class="form-label badge text-bg-dark">lr_dis:</label>
-                    <input type="number" name="lr_dis" id="lr_dis" value="0.01" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="rep_coef" class="form-label badge text-bg-dark">rep_coef:</label>
-                    <input type="number" name="rep_coef" id="rep_coef" value="1" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="dis_coef" class="form-label badge text-bg-dark">dis_coef:</label>
-                    <input type="number" name="dis_coef" id="dis_coef" value="0" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="dropout_" class="form-label badge text-bg-dark">dropout_:</label>
-                    <input type="number" name="dropout_" id="dropout_" value="0.08" class="form-control">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="activation_rep" class="form-label badge text-bg-dark">activation_rep:</label>
-                    <select id="activation_rep" class="form-select" onchange="changeSelect('activation_rep', 'activation_rep-val');">
-                        <option value="elu" selected>elu</option>
-                        <option value="relu">relu</option>
-                        <option value="tanh">tanh</option>
-                    </select>
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="activation_dis" class="form-label badge text-bg-dark">activation_dis:</label>
-                    <select id="activation_dis" class="form-select" onchange="changeSelect('activation_dis', 'activation_dis-val');">
-                        <option value="elu" selected>elu</option>
-                        <option value="relu">relu</option>
-                        <option value="tanh">tanh</option>
-                    </select>
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="neurons" class="form-label badge text-bg-dark">neurons:</label>
-                    <input type="number" name="neurons" id="neurons" value="20" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="neurons2" class="form-label badge text-bg-dark">neurons2:</label>
-                    <input type="number" name="neurons2" id="neurons2" value="10" class="form-control">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="representation_size" class="form-label badge text-bg-dark">representation_size:</label>
-                    <input type="number" name="representation_size" id="representation_size" value="10" class="form-control">
-                </div>
-                <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
-                    <label for="test_size" class="form-label badge text-bg-dark">test_size:</label>
-                    <input type="number" name="test_size" id="test_size" value="0.2" class="form-control">
-                </div>
-            </div>
-        </div>
 
-        <br>
-        <br>
-        <br>
-        <br>
-        <div class="col-md-12">
-            <button class="btn btn-dark bottom-submit" type="submit" tabindex="17" onchange="showLoader();">Calculate</button>
-        </div>
-        <br>
-        <br>
-        <br>
+                <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                    <label for="TAG-file" class="form-label badge text-bg-dark">Select Tag file:</label>
+                    <input type="file" name="TAG-file" id="TAG-file" class="form-control" accept=".csv">
+                    <button type="button" class="btn btn-secondary mt-2" onclick="loadDefaultTag()">Load Example
+                    </button>
+
+                </div>
+            </div>
+
+            <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                <label for="tax-level" class="form-label badge text-bg-dark">Taxonomy Level:</label>
+                <select id="tax-level" class="form-select" onchange="changeSelect('tax-level', 'tax-level-val');">
+                    <option value="Order">Order</option>
+                    <option value="Family">Family</option>
+                    <option value="Genus">Genus</option>
+                    <option value="Specie" selected>Specie</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                <label for="normalization" class="form-label badge text-bg-dark">Normalization:</label>
+                <select id="normalization" class="form-select"
+                        onchange="changeSelect('normalization', 'normalization-val');">
+                    <option value="Log" selected>Log</option>
+                    <option value="Relative">Relative</option>
+                </select>
+            </div>
+            <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                <label for="reduction" class="form-label badge text-bg-dark">Dimension Reduction:</label>
+                <select id="reduction" class="form-select" onchange="changeSelect('reduction', 'normalization-val');">
+                    <option value="PCA">PCA</option>
+                    <option value="ICA">ICA</option>
+                    <option value="None" selected>None</option>
+                </select>
+            </div>
+            <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                <label for="tax-group" class="form-label badge text-bg-dark">Taxonomy Group:</label>
+                <select id="tax-group" class="form-select" onchange="changeSelect('tax-group', 'tax-group-val');">
+                    <option value="Mean">Mean</option>
+                    <option value="Sum">Sum</option>
+                    <option value="sub PCA" selected>sub PCA</option>
+                </select>
+            </div>
+            <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                <label for="epsilon" class="form-label badge text-bg-dark">Epsilon:</label>
+                <input type="number" name="epsilon" id="epsilon" value="0.1" class="form-control">
+            </div>
+            <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                <label for="components" class="form-label badge text-bg-dark">Number of Components:</label>
+                <input type="number" name="components" id="components" value="0" class="form-control">
+            </div>
+            <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                <label for="tax-level-freq" class="form-label badge text-bg-dark">Taxonomy Level For Frequency
+                    Plot:</label>
+                <select id="tax-level-freq" class="form-select"
+                        onchange="changeSelect('tax-level-freq', 'tax-level-freq-val');">
+                    <option value="Class" selected>Class</option>
+                    <option value="Phylum">Phylum</option>
+                    <option value="Order">Order</option>
+                </select>
+            </div>
+            <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                <label for="z-score-log" class="form-label badge text-bg-dark">Z Scoring following log
+                    normalization:</label>
+                <select id="z-score-log" class="form-select" onchange="changeSelect('z-score-log', 'z-score-log-val');">
+                    <option value="Row">Row</option>
+                    <option value="Column">Column</option>
+                    <option value="Both">Both</option>
+                    <option value="None" selected>None</option>
+                </select>
+                <br>
+                <label for="z-score-rel" class="form-label badge text-bg-dark">Z Scoring following relative
+                    frequency:</label>
+                <select id="z-score-rel" class="form-select" onchange="changeSelect('z-score-rel', 'z-score-rel-val');">
+                    <option value="No" selected>No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+            </div>
+            <div>
+                <br>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="MIP-MLP" value="MIP-MLP" checked disabled>
+                        <label class="form-check-label" for="MIP-MLP">
+                            MIP-MLP
+                        </label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="iMic" name="iMic" value="iMic"
+                               onchange="present_iMic();">
+                        <label class="form-check-label" for="iMic">
+                            iMic
+                        </label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="miMic" name="miMic" value="miMic"
+                               onchange="present_miMic();">
+                        <label class="form-check-label" for="miMic">
+                            miMic
+                        </label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="samba" name="samba" value="samba"
+                               onchange="present_samba();" disabled>
+                        <label class="form-check-label" for="samba">
+                            SAMBA
+                        </label>
+                    </div>
+                </div>
+                {#
+                <div class="col">#}
+                    {#
+                    <div class="form-check">#}
+                        {# <input class="form-check-input" type="checkbox" id="LOCATE" name="LOCATE" value="LOCATE"
+                                  ONCHANGE="present_LOCATE();" disabled>#}
+                        {# <label class="form-check-label" for="LOCATE">#}
+                            {# LOCATE#}
+                            {# </label>#}
+                        {#
+                    </div>
+                    #}
+                    {#
+                </div>
+                #}
+            </div>
+            <div id="present_iMic" style="display: none;" class="container">
+                <br>
+                <h3>iMic HyperParameters</h3>
+                <br>
+                <div class="row">
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="l1_loss" class="form-label badge text-bg-dark">l1_loss:</label>
+                        <input type="number" name="l1_loss" id="l1_loss" value="0.1" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="weight_decay" class="form-label badge text-bg-dark">weight_decay:</label>
+                        <input type="number" name="weight_decay" id="weight_decay" value="0.01" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="lr" class="form-label badge text-bg-dark">lr:</label>
+                        <input type="number" name="lr" id="lr" value="0.001" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="batch_size" class="form-label badge text-bg-dark">batch_size:</label>
+                        <input type="number" name="batch_size" id="batch_size" value="128" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="activation" class="form-label badge text-bg-dark">activation:</label>
+                        <select id="activation" class="form-select"
+                                onchange="changeSelect('activation', 'activation-val');">
+                            <option value="elu" selected>elu</option>
+                            <option value="relu">relu</option>
+                            <option value="tanh">tanh</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="dropout" class="form-label badge text-bg-dark">dropout:</label>
+                        <input type="number" name="dropout" id="dropout" value="0.1" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="kernel_size_a" class="form-label badge text-bg-dark">kernel_size_a:</label>
+                        <input type="number" name="kernel_size_a" id="kernel_size_a" value="4" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="kernel_size_b" class="form-label badge text-bg-dark">kernel_size_b:</label>
+                        <input type="number" name="kernel_size_b" id="kernel_size_b" value="4" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="stride" class="form-label badge text-bg-dark">stride:</label>
+                        <input type="number" name="stride" id="stride" value="2" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="padding" class="form-label badge text-bg-dark">padding:</label>
+                        <input type="number" name="padding" id="padding" value="3" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="padding_2" class="form-label badge text-bg-dark">padding_2:</label>
+                        <input type="number" name="padding_2" id="padding_2" value="0" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="kernel_size_a_2" class="form-label badge text-bg-dark">kernel_size_a_2:</label>
+                        <input type="number" name="kernel_size_a_2" id="kernel_size_a_2" value="2" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="kernel_size_b_2" class="form-label badge text-bg-dark">kernel_size_b_2:</label>
+                        <input type="number" name="kernel_size_b_2" id="kernel_size_b_2" value="7" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="stride_2" class="form-label badge text-bg-dark">stride_2:</label>
+                        <input type="number" name="stride_2" id="stride_2" value="3" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="channels" class="form-label badge text-bg-dark">channels:</label>
+                        <input type="number" name="channels" id="channels" value="3" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="channels_2" class="form-label badge text-bg-dark">channels_2:</label>
+                        <input type="number" name="channels_2" id="channels_2" value="14" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="linear_dim_divider_1"
+                               class="form-label badge text-bg-dark">linear_dim_divider_1:</label>
+                        <input type="number" name="linear_dim_divider_1" id="linear_dim_divider_1" value="10"
+                               class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="linear_dim_divider_2"
+                               class="form-label badge text-bg-dark">linear_dim_divider_2:</label>
+                        <input type="number" name="linear_dim_divider_2" id="linear_dim_divider_2" value="6"
+                               class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="input_dim" class="form-label badge text-bg-dark">input_dim:</label>
+                        <input type="text" name="input_dim" id="input_dim" value="(8, 235)" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div id="present_mimic" style="display: none;">
+                <br>
+                <h2>A priori Nested ANOVA & Post hoc Test</h2>
+                <br>
+                <div class="row justify-content-evenly">
+                    <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="eval" class="form-label badge text-bg-dark">Eval Mode:</label>
+                        <select id="eval" class="form-select" onchange="changeSelect('eval', 'eval-val');">
+                            <option value="man" selected>man</option>
+                            <option value="core">core</option>
+                            <option value="cat">cat</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="sis" class="form-label badge text-bg-dark">sis:</label>
+                        <select id="sis" class="form-select" onchange="changeSelect('sis', 'sis-val');">
+                            <option value="fdr_bh" selected>fdr_bh</option>
+                            <option value="bonferroni">bonferroni</option>
+                            <option value="no">no</option>
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="correct_first" class="form-label badge text-bg-dark">Correct First:</label>
+                        <select id="correct_first" class="form-select"
+                                onchange="changeSelect('correct_first', 'correct_first-val');">
+                            <option value="True" selected>True</option>
+                            <option value="False">False</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="pvalue" class="form-label badge text-bg-dark">p value:</label>
+                        <input type="number" name="pvalue" id="pvalue" class="form-control" value="0.05">
+                    </div>
+                    <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="threshold_stat" class="form-label badge text-bg-dark">Choose a threshold for the
+                            statistics<br>for the edges of the interaction network</label>
+                        <input type="number" name="threshold_stat" id="threshold_stat" class="form-control" value="0.5">
+                    </div>
+                </div>
+            </div>
+            <div id="present_samba" style="display: none;" class="container">
+                <br>
+                <h3>SAMBA HyperParameters</h3>
+                <br>
+                <div class="row justify-content-evenly">
+                    <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="cutoff" class="form-label badge text-bg-dark">cutoff:</label>
+                        <input type="number" name="cutoff" id="cutoff" class="form-control" value="0.8">
+                    </div>
+                    <div class="col-md-4 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="metric" class="form-label badge text-bg-dark">metric:</label>
+                        <select id="metric" class="form-select" onchange="changeSelect('metric', 'metric-val');">
+                            <option value="sam" selected>sam</option>
+                            <option value="mge">mge</option>
+                            <option value="d1">d1</option>
+                            <option value="d2">d2</option>
+                            <option value="d3">d3</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="present_LOCATE" style="display: none;" class="container">
+                <br>
+                <h3>LOCATE HyperParameters</h3>
+                <br>
+                <div class="row">
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="metab" class="form-label badge text-bg-dark">metab:</label>
+                        <input type="file" name="metab" id="metab" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="weight_decay_rep" class="form-label badge text-bg-dark">weight_decay_rep:</label>
+                        <input type="number" name="weight_decay_rep" id="weight_decay_rep" value="0.02"
+                               class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="weight_decay_dis" class="form-label badge text-bg-dark">weight_decay_dis:</label>
+                        <input type="number" name="weight_decay_dis" id="weight_decay_dis" value="0.2"
+                               class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="lr_rep" class="form-label badge text-bg-dark">lr_rep:</label>
+                        <input type="number" name="lr_rep" id="lr_rep" value="0.001" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="lr_dis" class="form-label badge text-bg-dark">lr_dis:</label>
+                        <input type="number" name="lr_dis" id="lr_dis" value="0.01" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="rep_coef" class="form-label badge text-bg-dark">rep_coef:</label>
+                        <input type="number" name="rep_coef" id="rep_coef" value="1" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="dis_coef" class="form-label badge text-bg-dark">dis_coef:</label>
+                        <input type="number" name="dis_coef" id="dis_coef" value="0" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="dropout_" class="form-label badge text-bg-dark">dropout_:</label>
+                        <input type="number" name="dropout_" id="dropout_" value="0.08" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="activation_rep" class="form-label badge text-bg-dark">activation_rep:</label>
+                        <select id="activation_rep" class="form-select"
+                                onchange="changeSelect('activation_rep', 'activation_rep-val');">
+                            <option value="elu" selected>elu</option>
+                            <option value="relu">relu</option>
+                            <option value="tanh">tanh</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="activation_dis" class="form-label badge text-bg-dark">activation_dis:</label>
+                        <select id="activation_dis" class="form-select"
+                                onchange="changeSelect('activation_dis', 'activation_dis-val');">
+                            <option value="elu" selected>elu</option>
+                            <option value="relu">relu</option>
+                            <option value="tanh">tanh</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="neurons" class="form-label badge text-bg-dark">neurons:</label>
+                        <input type="number" name="neurons" id="neurons" value="20" class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="neurons2" class="form-label badge text-bg-dark">neurons2:</label>
+                        <input type="number" name="neurons2" id="neurons2" value="10" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="representation_size"
+                               class="form-label badge text-bg-dark">representation_size:</label>
+                        <input type="number" name="representation_size" id="representation_size" value="10"
+                               class="form-control">
+                    </div>
+                    <div class="col-md-3 text-bg-secondary p-3" style="border: 3px solid white;">
+                        <label for="test_size" class="form-label badge text-bg-dark">test_size:</label>
+                        <input type="number" name="test_size" id="test_size" value="0.2" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <br>
+            <br>
+            <br>
+            <br>
+            <!-- Calculate Button -->
+            <div class="col-md-12 text-center">
+                <button class="btn btn-dark bottom-submit" type="submit" tabindex="17" onclick="showLoader();">
+                    Calculate
+                </button>
+            </div>
+
+            <!-- Popup Modal -->
+            <div id="loading-modal" class="modal" tabindex="-1" role="dialog" style="display: none;">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Processing...</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p>Please wait, this may take a couple of minutes...</p>
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <br>
+            <br>
     </form>
 </div>
 {% endblock %}

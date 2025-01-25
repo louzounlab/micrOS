@@ -155,6 +155,11 @@ select {
     overflow-y: auto;
 }
 
+.text-bg-secondary {
+    background-color: #2D9596 !important; /* Replace with your desired color */
+    color: #ffffff; /* Optionally, adjust the text color for contrast */
+}
+
 /* ------------------------------------------ */
 
 .multiselect {

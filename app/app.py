@@ -1,7 +1,7 @@
 """
 Yuli Tshuva
 """
-
+import json
 import os
 import pandas as pd
 from flask import Flask, request, render_template, flash
@@ -12,13 +12,24 @@ import shutil
 import time
 from datetime import datetime, timedelta
 
-
 random_hex = secrets.token_hex()
 
 app = Flask(__name__, static_folder='static', template_folder="templates")
 app.config['UPLOAD_FOLDER'] = os.path.abspath("upload_folder")
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=1)
 app.config["SECRET_KEY"] = random_hex
+
+# Global variable to store the taxa data
+taxa_data = None
+
+
+def load_taxa_data():
+    global taxa_data
+    file_path = os.path.join(app.static_folder, 'files', 'predicted_next_gen_probiotic_taxa_std_p.csv')
+    df = pd.read_csv(file_path)
+    # In the Taxa column - remove all text before the "g__":
+    df['Taxa'] = "g__" + df['Taxa'].str.split("g__").str[-1]
+    taxa_data = df.to_dict(orient='records')
 
 
 def delete_old_files_and_folders():
@@ -189,7 +200,7 @@ def impute_form():
         if run_iMic:
             render_dict["imic_train"] = os.path.join(folder, "iMic", "train.csv")
             render_dict["imic_test"] = os.path.join(folder, "iMic", "test.csv")
-            render_dict["roc_auc_train"], render_dict["roc_auc_test"] = output[0], output[1]
+            render_dict["roc_auc_train"], render_dict["roc_auc_test"] = output["roc_auc_train"], output["roc_auc_test"]
         if run_miMic:
             mimic_folder = os.path.join(folder, "miMic")
             render_dict["mimic_paths"] = [os.path.join(mimic_folder, file) for file in os.listdir(mimic_folder)
@@ -199,11 +210,14 @@ def impute_form():
             render_dict["samba_png"] = os.path.join(folder, "samba", "umap_plot.png")
             render_dict["samba_csv"] = os.path.join(folder, "samba", "dist_matrix.csv")
         if run_LOCATE:
-            render_dict["n_pred"] = output[2] if run_iMic else output[0]
+            render_dict["n_pred"] = output["n_pred"] if run_iMic else output["roc_auc_train"]
             render_dict["locate_path"] = os.path.join(folder, 'LOCATE', "results.csv")
+        # Prepare the CSV data for embedding in HTML
+        csv_data = output["sd_people"].to_csv(index=True)# Ensure clean CSV output
+        render_dict["sd_people"] = json.dumps(csv_data)  # Safely escape for JS
 
         return render_template("results_second_edition.html", run_iMic=run_iMic, run_miMic=run_miMic,
-                               run_samba=run_samba, run_LOCATE=run_LOCATE, render_dict=render_dict)
+                               run_samba=run_samba, run_LOCATE=run_LOCATE, run_SDpeople=True, render_dict=render_dict)
 
     except Exception as e:
         traceback.print_exc()
@@ -215,6 +229,20 @@ def impute_form():
 def home():
     delete_old_files_and_folders()
     return render_template("index.html", active="Home")
+
+
+@app.route('/Pngt', methods=['GET'])
+def Pngt():
+    return render_template("Pngt.html", active="predicted next gen probiotic taxa")
+
+
+@app.route('/get_taxa_data', methods=['GET'])
+def get_taxa_data():
+    try:
+        return {'data': taxa_data}
+    except Exception as e:
+        traceback.print_exc()
+        return {'error': str(e)}, 500
 
 
 @app.route('/Example', methods=['GET'])
@@ -229,4 +257,5 @@ def about():
 
 if __name__ == "__main__":
     os.makedirs("static/temp_files", exist_ok=True)
+    load_taxa_data()  # Load the taxa data when the application starts
     app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=True)

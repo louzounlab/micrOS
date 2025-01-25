@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<link rel="stylesheet" href="/static/index.css">
+<style>
+    .main-div {
+        margin: auto;
+        width: 80%;
+    }
+    .search-bar {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+    .table-container {
+        display: none;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+    /* Style the container */
+    .table-container {
+        background-color: #2D9596; /* Matches the background */
+        padding: 20px;
+        border-radius: 10px; /* Adds rounded corners */
+    }
+
+    /* Style the table */
+    #taxa-table {
+        width: 100%;
+        border-collapse: collapse; /* Removes double borders */
+        background-color: #ffffff; /* Table background for contrast */
+        border-radius: 8px; /* Adds rounded corners */
+        overflow: hidden; /* Ensures rounded corners apply to table */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    }
+
+    /* Style the table header */
+    #taxa-table thead th {
+        background-color: #145D5D; /* Darker shade of #2D9596 for contrast */
+        color: #ffffff; /* White text for readability */
+        padding: 12px;
+        text-align: left;
+        font-weight: bold;
+    }
+
+    /* Style the table body */
+    #taxa-table tbody td {
+        padding: 10px;
+        border: 1px solid #dddddd; /* Light border for separation */
+        text-align: left;
+        color: #333333; /* Dark text for readability */
+    }
+
+    /* Zebra stripes for rows */
+    #taxa-table tbody tr:nth-child(odd) {
+        background-color: #f9f9f9; /* Light gray for contrast */
+    }
+
+    #taxa-table tbody tr:nth-child(even) {
+        background-color: #e0f5f5; /* Subtle light green complementing #2D9596 */
+    }
+
+    /* Hover effect */
+    #taxa-table tbody tr:hover {
+        background-color: #c4eded; /* Highlighted row on hover */
+    }
+    .index-container {
+    display: none; /* Initially hide the index container */
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-top">
+    <h1>Predicted Next Gen Probiotic Taxa</h1>
+    <h3>Based on the paper Shifting from Abundance and Centrality - Fluctuating Microbes are Key Drivers of Long Lasting Microbiome Manipulation
+</h3>
+</div>
+<br>
+<div class="container">
+    <input type="text" id="search-bar" class="search-bar" placeholder="Search for a taxon...">
+    <div class="table-container" id="table-container">
+        <table id="taxa-table">
+            <thead>
+            <tr>
+                <th>Taxa</th>
+                <th>S.D. people percentile score</th>
+                <th>Count of top5 study occurrence</th>
+                <th>Count of study occurrence</th>
+                <th>Consistency</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+    <div class="index-container" id="index-container">
+        <h3>Explanation of Table Columns</h3>
+        <ul>
+            <li><strong>Taxa:</strong> Represents the name of the bacterial taxa in a hierarchical format. Includes:
+                <ul>
+                    <li><strong>g__</strong>: Specific genus</li>
+                    <li><strong>s__</strong>: Specific species</li>
+                    <li><strong>t__</strong>: Specific strain</li>
+                </ul>
+                Example: g__Escherichia;s__coli;t__K12
+            </li>
+            <li><strong>S.D. People Percentile Score:</strong> The percentile ranking of the bacterial taxa among
+                individuals with the standard deviation (S.D.) population profile. Higher scores indicate a more
+                prominent presence in the S.D. population.
+            </li>
+            <li><strong>Count of Top 5 Study Occurrences:</strong> The number of studies where the taxa appeared in the
+                top 5 taxa of the S.D. population distribution, highlighting its prominence across studies.
+            </li>
+            <li><strong>Count of Study Occurrences:</strong> The total number of studies in which the taxa was
+                identified. The database currently includes data from <strong>10 Whole Genome Sequencing (WGS)</strong>
+                studies.
+            </li>
+            <li><strong>Consistency:</strong> A measure of the taxa’s prominence across studies, calculated as:
+                <br>
+                Consistency = Count of Top 5 Study Occurrences ÷ Count of Study Occurrences
+                <br>
+                A higher score indicates consistent prominence across studies.
+            </li>
+        </ul>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let taxaData = [];
+        const searchBar = $('#search-bar');
+        const tableContainer = $('#table-container');
+        const tableBody = $('#taxa-table tbody');
+        const indexContainer = $('#index-container');
+
+
+        fetch('/get_taxa_data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error);
+                } else {
+                    taxaData = data.data;
+                    searchBar.autocomplete({
+                        source: taxaData.map(row => row.Taxa),
+                        select: function(event, ui) {
+                            const selectedTaxa = taxaData.find(row => row.Taxa === ui.item.value);
+                            displayTable(selectedTaxa);
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error('Error fetching taxa data:', error));
+
+        function displayTable(row) {
+            tableBody.html(`
+                <tr>
+                    <td>${row.Taxa}</td>
+                    <td>${row.Percentile_score}</td>
+                    <td>${row.Count}</td>
+                    <td>${row.Count_Total}</td>
+                    <td>${row.Fraction}</td>
+                </tr>
+            `);
+            tableContainer.show();
+            indexContainer.show();
+        }
+    });
+</script>
+{% endblock %}
+

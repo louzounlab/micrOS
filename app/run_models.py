@@ -5,6 +5,8 @@ Calling the different models.
 
 import os
 import MIPMLP
+from scipy.stats import zscore, rankdata
+
 import SAMBA
 import samba
 from sklearn import metrics
@@ -42,6 +44,11 @@ def total(current_time, df, tag, taxonomy_level, taxonomy_group, epsilon, normal
                                   z_scoring=z_scoring, norm_after_rel=norm_after_rel, pca=pca)
 
     folder = f"static/temp_files/{current_time}"
+
+    sd_people = processed.std()
+    sd_people = zscore(sd_people)
+    sd_people = rankdata(sd_people, method="average") / len(sd_people) * 100
+    sd_people = pd.Series(sd_people, index=processed.columns)
 
     samba.micro2matrix(processed, folder, save=True)
 
@@ -108,10 +115,10 @@ def total(current_time, df, tag, taxonomy_level, taxonomy_group, epsilon, normal
         save_path = os.path.join(folder, 'LOCATE', "results.csv")
         Z.to_csv(save_path)
 
-    if run_iMic and run_LOCATE:
-        return roc_auc_train, roc_auc_test, n_pred
-    elif run_iMic:
-        return roc_auc_train, roc_auc_test
-    elif run_LOCATE:
-        return n_pred
-    return
+    return_dict = {
+        "roc_auc_train": roc_auc_train if run_iMic else None,
+        "roc_auc_test": roc_auc_test if run_iMic else None,
+        "n_pred": n_pred if run_LOCATE else None,
+        "sd_people": sd_people
+    }
+    return return_dict
