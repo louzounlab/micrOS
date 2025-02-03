@@ -30,6 +30,7 @@ def load_taxa_data():
     # In the Taxa column - remove all text before the "g__":
     df['Taxa'] = "g__" + df['Taxa'].str.split("g__").str[-1]
     taxa_data = df.to_dict(orient='records')
+    return taxa_data
 
 
 def delete_old_files_and_folders():
@@ -240,7 +241,7 @@ def Pngt():
 def get_taxa_data():
     global taxa_data
     if taxa_data is None:
-        load_taxa_data()
+        taxa_data = load_taxa_data()
     try:
         return {'data': taxa_data}
     except Exception as e:
