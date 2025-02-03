@@ -213,7 +213,7 @@ def impute_form():
             render_dict["n_pred"] = output["n_pred"] if run_iMic else output["roc_auc_train"]
             render_dict["locate_path"] = os.path.join(folder, 'LOCATE', "results.csv")
         # Prepare the CSV data for embedding in HTML
-        csv_data = output["sd_people"].to_csv(index=True)# Ensure clean CSV output
+        csv_data = output["sd_people"].to_csv(index=True)  # Ensure clean CSV output
         render_dict["sd_people"] = json.dumps(csv_data)  # Safely escape for JS
 
         return render_template("results_second_edition.html", run_iMic=run_iMic, run_miMic=run_miMic,
@@ -238,6 +238,9 @@ def Pngt():
 
 @app.route('/get_taxa_data', methods=['GET'])
 def get_taxa_data():
+    global taxa_data
+    if taxa_data is None:
+        load_taxa_data()
     try:
         return {'data': taxa_data}
     except Exception as e:
